@@ -32,7 +32,7 @@ jobs:
           # Eliminar remote heroku si existe
           git remote remove heroku || echo "No había remote heroku"
 
-          # Crear el remote usando el CLI de Heroku
+          # Intentar crear el remote con Heroku CLI
           heroku git:remote -a holamundo4
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
