@@ -1,4 +1,4 @@
-name: Deploy a Heroku desde GitHub
+name: Despliegue en Heroku
 
 on:
   push:
@@ -13,38 +13,33 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Descargar Heroku CLI
+      - name: Descargar e instalar Heroku CLI
         run: |
           curl https://cli-assets.heroku.com/install.sh  | sh
 
-      - name: Verificar instalación de Heroku CLI
-        run: |
-          heroku --version
+      - name: Verificar instalación de Heroku
+        run: heroku --version
 
       - name: Iniciar sesión en Heroku
         run: |
-          # Autenticar con token
           heroku auth:token:set ${{ secrets.HEROKU_API_KEY }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
       - name: Configurar remote de Heroku
         run: |
-          # Crear el remote de Heroku si no existe
-          heroku git:remote -a holamundo4  # ← Reemplaza por tu nombre de app
+          heroku git:remote -a holamundo4
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Desplegar en Heroku
+      - name: Hacer commit vacío para forzar deploy
         run: |
-          # Agregar todos los archivos y hacer commit (Heroku necesita un repo limpio)
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-
-          # Hacer commit vacío para forzar el push
           git commit --allow-empty -m "Forzar deploy a Heroku"
 
-          # Hacer push a Heroku
+      - name: Desplegar en Heroku
+        run: |
           git push heroku main
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
