@@ -31,7 +31,7 @@ jobs:
       - name: Configurar remote de Heroku
         run: |
           # Crear el remote de Heroku si no existe
-          heroku git:remote -a tu-app-heroku  # ← Reemplaza por tu nombre de app
+          heroku git:remote -a holamundo4  # ← Reemplaza por tu nombre de app
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
