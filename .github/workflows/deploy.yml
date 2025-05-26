@@ -37,11 +37,15 @@ jobs:
 
       - name: Desplegar en Heroku
         run: |
-          # Agregar todos los archivos y hacer commit (Heroku necesita un repo limpio)
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add .
-          git commit -m "Deploy desde GitHub Actions"
+
+          # Modificar un archivo para forzar un cambio
+          echo "// Build $(date)" >> app.py
+
+          # Agregar cambios y commitear
+          git add app.py
+          git commit -m "Actualizar app.py para deploy"
 
           # Hacer push a Heroku
           git push heroku main
