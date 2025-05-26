@@ -22,20 +22,19 @@ jobs:
 
       - name: Iniciar sesión en Heroku
         run: |
-          # Usar el API KEY para autenticar
+          # Autenticar con token
           heroku auth:token:set ${{ secrets.HEROKU_API_KEY }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Configurar remote de Heroku (oficial)
+      - name: Eliminar remote heroku si existe
         run: |
-          # Eliminar remote heroku si existe
           git remote remove heroku || echo "No había remote heroku"
 
-          # Intentar crear el remote con Heroku CLI
-          heroku git:remote -a holamundo4
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      - name: Configurar remote de Heroku manualmente
+        run: |
+          # Configurar remote usando la URL correcta
+          git remote add heroku https://git.heroku.com/holamundo4.git 
 
       - name: Hacer commit vacío para forzar deploy
         run: |
@@ -45,6 +44,5 @@ jobs:
 
       - name: Desplegar en Heroku
         run: |
-          git push heroku main
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          # Agregar credenciales al push
+          git push https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/holamundo4.git main
