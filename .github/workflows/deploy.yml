@@ -31,21 +31,17 @@ jobs:
       - name: Configurar remote de Heroku
         run: |
           # Crear el remote de Heroku si no existe
-          heroku git:remote -a holamundo4
+          heroku git:remote -a tu-app-heroku  # ← Reemplaza por tu nombre de app
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
       - name: Desplegar en Heroku
         run: |
+          # Agregar todos los archivos y hacer commit (Heroku necesita un repo limpio)
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-
-          # Modificar un archivo para forzar un cambio
-          echo "// Build $(date)" >> app.py
-
-          # Agregar cambios y commitear
-          git add app.py
-          git commit -m "Actualizar app.py para deploy"
+          git add .
+          git commit -m "Deploy desde GitHub Actions"
 
           # Hacer push a Heroku
           git push heroku main
