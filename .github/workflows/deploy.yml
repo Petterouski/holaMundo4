@@ -1,0 +1,51 @@
+name: Deploy to Heroku
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Heroku Container Registry
+        run: |
+          docker login registry.heroku.com --username=_ --password=${{ secrets.HEROKU_API_KEY }}
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Build Docker image
+        run: |
+          APP_NAME=tu-app-hola-mundo
+          docker build -t registry.heroku.com/$APP_NAME/web .
+
+      - name: Push Docker image to Heroku
+        run: |
+          APP_NAME=tu-app-hola-mundo
+          docker push registry.heroku.com/$APP_NAME/web
+
+      - name: Release on Heroku
+        run: |
+          APP_NAME=holamundo4
+          curl -n -X PATCH https://api.heroku.com/apps/ $APP_NAME/formation \
+            -d '{
+              "updates": [
+                {
+                  "type": "web",
+                  "docker_image": "$(docker inspect registry.heroku.com/$APP_NAME/web | jq -r '.[0].RepoDigests[0]' | cut -d '@' -f2)"
+                }
+              ]
+            }' \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3.docker-reformation"
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        uses: appleboy/ssh-action@master
