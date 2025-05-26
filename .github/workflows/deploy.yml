@@ -15,34 +15,22 @@ jobs:
 
       - name: Instalar Heroku CLI
         run: |
-          curl https://cli-assets.heroku.com/install.sh  | sh
+          curl https://cli-assets.heroku.com/install.sh | sh
 
-      - name: Verificar instalación
-        run: heroku --version
-
-      - name: Iniciar sesión en Heroku
-        run: |
-          # Autenticar con token
-          heroku auth:token:set ${{ secrets.HEROKU_API_KEY }}
+      - name: Configurar Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-      - name: Eliminar remote heroku si existe
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
         run: |
-          git remote remove heroku || echo "No había remote heroku"
+          # Autenticación segura
+          heroku auth:token $HEROKU_API_KEY
+          
+          # Configurar remote
+          git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git
 
-      - name: Configurar remote de Heroku manualmente
+      - name: Desplegar aplicación
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          # Configurar remote usando la URL correcta
-          git remote add heroku https://git.heroku.com/holamundo4.git 
-
-      - name: Hacer commit vacío para forzar deploy
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git commit --allow-empty -m "Forzar deploy a Heroku"
-
-      - name: Desplegar en Heroku
-        run: |
-          # Agregar credenciales al push
-          git push https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/holamundo4.git main
+          # Forzar push a Heroku (usar --force solo si es necesario)
+          git push heroku HEAD:main
