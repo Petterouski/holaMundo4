@@ -1,4 +1,4 @@
-name: Despliegue en Heroku
+name: Deploy a Heroku
 
 on:
   push:
@@ -6,43 +6,27 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Login a Docker Hub
-        run: docker login docker.io -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-      - name: Descargar imagen desde Docker Hub
+      - name: Descargar Heroku CLI
         run: |
-          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/holaMundo4:latest
+          curl https://cli-assets.heroku.com/install.sh  | sh
 
-      - name: Renombrar imagen para Heroku
+      - name: Iniciar sesión en Heroku
         run: |
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/holaMundo4:latest registry.heroku.com/holamundo4/web
-
-      - name: Login al Heroku Container Registry
-        run: |
-          echo "HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}"
-          heroku container:login -a holamundo4
+          heroku auth:token:set ${{ secrets.HEROKU_API_KEY }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Subir imagen a Heroku
+      - name: Configurar remote de Heroku
         run: |
-          docker push registry.heroku.com/holamundo4/web
+          heroku git:remote -a holamundo4
 
-      - name: Redesplegar en Heroku
+      - name: Subir y desplegar en Heroku
         run: |
-          heroku container:release web -a holamundo4
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          git push heroku main
