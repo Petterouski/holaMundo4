@@ -11,7 +11,7 @@ def hola_mundo():
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Dev hola mundeishion DevOps con Heroku</title>
+            <title>Dev DevOps con Heroku</title>
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
             <style>
                 :root {
@@ -148,7 +148,7 @@ def hola_mundo():
                 
                 <div class="content-box">
                     <p>Este proyecto demuestra la implementación de <span class="highlight">Integración Continua (CI)</span> y <span class="highlight">Despliegue Continuo (CD)</span> usando Heroku.</p>
-                    <p>El 20% clave: Heroku automatiza el despliegue cuando detecta cambios en el repositorio, permitiendo entregas rápidas y consistentes.</p>
+                    <p>El buen Heroku automatiza el despliegue cuando detecta cambios en el repositorio, permitiendo entregas rápidas y consistentes.</p>
                 </div>
                 
                 <div class="features">
