@@ -1,4 +1,4 @@
-name: Deploy to Heroku
+name: Despliegue en Heroku desde Docker Hub
 
 on:
   push:
@@ -10,29 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Heroku Container Registry
+      - name: Login en Heroku Container Registry
         run: |
           docker login registry.heroku.com --username=_ --password=${{ secrets.HEROKU_API_KEY }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
-      - name: Build Docker image
+      - name: Login en Docker Hub
         run: |
-          APP_NAME=tu-app-hola-mundo
-          docker build -t registry.heroku.com/$APP_NAME/web .
+          docker login docker.io -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_TOKEN }}
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Push Docker image to Heroku
+      - name: Descargar imagen desde Docker Hub
         run: |
-          APP_NAME=tu-app-hola-mundo
-          docker push registry.heroku.com/$APP_NAME/web
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/holaMundo4:latest
 
-      - name: Release on Heroku
+      - name: Etiquetar imagen para Heroku
+        run: |
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/holaMundo4:latest registry.heroku.com/tu-app-heroku/web
+
+      - name: Subir imagen a Heroku
+        run: |
+          docker push registry.heroku.com/tu-app-heroku/web
+
+      - name: Redesplegar en Heroku
         run: |
           APP_NAME=holamundo4
           curl -n -X PATCH https://api.heroku.com/apps/ $APP_NAME/formation \
@@ -40,7 +46,7 @@ jobs:
               "updates": [
                 {
                   "type": "web",
-                  "docker_image": "$(docker inspect registry.heroku.com/$APP_NAME/web | jq -r '.[0].RepoDigests[0]' | cut -d '@' -f2)"
+                  "docker_image": "$(docker inspect registry.heroku.com/$APP_NAME/web | jq -r '.[0].RepoDigests[0]' | cut -d "@" -f 2)"
                 }
               ]
             }' \
@@ -48,4 +54,4 @@ jobs:
             -H "Accept: application/vnd.heroku+json; version=3.docker-reformation"
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        uses: appleboy/ssh-action@master
+          
